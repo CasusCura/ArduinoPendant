@@ -13,13 +13,15 @@ from pprint import pprint
 import os
 import re
 import sys
-from typing import List, Dict, Any
+from typing import List, Dict
 
 # Number expressions.
 DEC_REGEX = re.compile(r"^[1-9]\d*[uU]?[lL]{0,2}$")
 OCT_REGEX = re.compile(r"0\d+[uU]?[lL]{0,2}")
 HEX_REGEX = re.compile(r"^0x[\dA-Fa-f]+[uU]?[lL]{0,2}$")
 NUM_REGEXES = frozenset([DEC_REGEX, OCT_REGEX, HEX_REGEX])
+
+TEST_COMMENT = """This is not a very long string."""
 
 
 def get_program_options(args: List[str]) -> argparse.Namespace:
@@ -117,7 +119,7 @@ def convert_variable_value(oldvalue: str) -> str:
     tempvalue = remove_quotes(oldvalue.strip())
     if len(tempvalue) == 0:
         return None
-    if any(filter(lambda exp: exp.match(tempvalue) is not None, NUM_REGEXES)):
+    if any(map(lambda exp: exp.match(tempvalue) is not None, NUM_REGEXES)):
         return tempvalue
     tempvalue = tempvalue.replace('"', '\\"')
     return '"{}"'.format(tempvalue)
@@ -157,6 +159,55 @@ def process_file_vars(filename: str) -> Dict[str, str]:
     return env_vars
 
 
+def generate_comment(content: str, title_mode: bool=False) -> str:
+    """Generate Comment.
+
+    Generates the C-style comment using the string provided.
+    """
+    # Tokenize the input, and remove any irrelevant white space.
+    words = list(filter(
+        len,
+        (content.strip()
+         .replace("\n", " ")
+         .replace("\t", " ")
+         .replace("*/", "*\\/")
+         .split())))
+    bar = " ".join(["*"]*35)
+
+    if (sum(map(len, words)) + len(words)) < 70:
+        if title_mode:
+            return "/*\n * {bar}\n * {content}\n * {bar}\n */".format(
+                bar=bar,
+                content=" ".join(words))
+        return "/* {content} */".format(content=" ".join(words))
+
+    if title_mode:
+        base = "/*\n * {bar}\n * {{lines}}\n * {bar}\n */".format(
+            bar=bar)
+    else:
+        base = "/*\n * {lines}\n */"
+
+    lines = []
+    line = []
+    line_len = 0
+    for word in words:
+        if line_len + len(word) >= 70:
+            lines.append(" ".join(line))
+            line.clear()
+            line_len = 0
+        line.append(word)
+        line_len += len(word) + 1
+    if len(line) > 0:
+        lines.append(" ".join(line))
+
+    return base.format(lines="\n * ".join(lines))
+
+
+def generate_header_content(filename: str, env_vars: Dict[str, str]) -> str:
+    """Generate Header Content."""
+    pass
+
+
 def main(args):
     """Auto Header - Main Function."""
     options = get_program_options(args)
@@ -171,6 +222,7 @@ def main(args):
 
     # TODO: Print the variables in C preprocessor style macros.
     pprint(env_vars)
+    print(generate_comment(TEST_COMMENT))
 
     closer()
 
