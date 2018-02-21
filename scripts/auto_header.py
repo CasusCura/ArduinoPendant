@@ -8,6 +8,7 @@ See LICENSE for information.
 """
 
 import argparse
+from datetime import datetime
 import logging
 from pprint import pprint
 import os
@@ -21,7 +22,19 @@ OCT_REGEX = re.compile(r"0\d+[uU]?[lL]{0,2}")
 HEX_REGEX = re.compile(r"^0x[\dA-Fa-f]+[uU]?[lL]{0,2}$")
 NUM_REGEXES = frozenset([DEC_REGEX, OCT_REGEX, HEX_REGEX])
 
-TEST_COMMENT = """This is not a very long string."""
+HEADER_COMMENT_STRING = """
+Auto-Generate Constants Macros
+Generate on: {date}
+Source Files:
+{file_list}
+
+This file was automatically generated using auto_header.py.
+
+Copyright (c) 2017 Alex Dale
+See LICENSE for information.
+"""
+
+FILE_LIST_ITEM = "\t{num}. {filename}"
 
 
 def get_program_options(args: List[str]) -> argparse.Namespace:
@@ -164,17 +177,25 @@ def generate_comment(content: str, title_mode: bool=False) -> str:
 
     Generates the C-style comment using the string provided.
     """
-    # Tokenize the input, and remove any irrelevant white space.
+    # Tokenize the input.
     words = list(filter(
         len,
         (content.strip()
-         .replace("\n", " ")
-         .replace("\t", " ")
+         .replace("\n", " \n ")  # Keeps new lines separate.
+         .replace("\t", " \t ")  # Keeps tabs separate.
          .replace("*/", "*\\/")
-         .split())))
+         .split(' '))))
     bar = " ".join(["*"]*35)
+    tab = "    "
 
-    if (sum(map(len, words)) + len(words)) < 70:
+    def word_len(word: str) -> int:
+        if word == '\t':
+            return len(tab)
+        if word == '\n':
+            return 0
+        return len(word)
+
+    if (sum(map(word_len, words)) + len(words)) < 70 and '\n' not in words:
         if title_mode:
             return "/*\n * {bar}\n * {content}\n * {bar}\n */".format(
                 bar=bar,
@@ -182,8 +203,7 @@ def generate_comment(content: str, title_mode: bool=False) -> str:
         return "/* {content} */".format(content=" ".join(words))
 
     if title_mode:
-        base = "/*\n * {bar}\n * {{lines}}\n * {bar}\n */".format(
-            bar=bar)
+        base = "/*\n * {bar}\n * {{lines}}\n * {bar}\n */".format(bar=bar)
     else:
         base = "/*\n * {lines}\n */"
 
@@ -191,21 +211,81 @@ def generate_comment(content: str, title_mode: bool=False) -> str:
     line = []
     line_len = 0
     for word in words:
-        if line_len + len(word) >= 70:
+        if (line_len + word_len(word)) >= 70 or word == '\n':
             lines.append(" ".join(line))
             line.clear()
             line_len = 0
-        line.append(word)
-        line_len += len(word) + 1
+        if word == '\n':
+            continue
+        if word == '\t':
+            line.append(tab)
+            line_len += len(tab) + 1
+        else:
+            line.append(word)
+            line_len += len(word) + 1
     if len(line) > 0:
         lines.append(" ".join(line))
 
     return base.format(lines="\n * ".join(lines))
 
 
-def generate_header_content(filename: str, env_vars: Dict[str, str]) -> str:
+def generate_file_list(valid_files: List[str]) -> str:
+    """Generate File List."""
+    return "\n".join([
+        FILE_LIST_ITEM.format(
+            num=num+1,
+            filename=filename)
+        for num, filename in enumerate(valid_files)])
+
+
+def generate_macro_definitions(env_vars: Dict[str, str]) -> str:
+    """Generate Macro Definitions."""
+    macros = []
+    for varname, varvalue in env_vars.items():
+        if varvalue is None:
+            macros.append("#define {varname}".format(varname=varname))
+        else:
+            macros.append("#define {varname} {varvalue}".format(
+                varname=varname,
+                varvalue=varvalue))
+
+    return "\n".join(macros)
+
+
+def generate_header_content(
+        filename: str,
+        valid_files: List[str],
+        env_vars: Dict[str, str]) -> str:
     """Generate Header Content."""
-    pass
+    # Generate header comment.
+    header_content = HEADER_COMMENT_STRING.format(
+        date=datetime.now().replace(microsecond=0).isoformat(),
+        file_list=generate_file_list(valid_files))
+    header_comment = generate_comment(header_content, title_mode=True)
+
+    # Open header guard
+    guard_name = "_{}_".format(
+        filename.upper()
+        .replace('.', '_')
+        .replace(' ', '_')
+        .replace('/', '_'))
+    header_guard = "#ifndef {guard_name}\n#define {guard_name}".format(
+        guard_name=guard_name)
+
+    macros = generate_macro_definitions(env_vars)
+
+    # Close header guard
+    header_guard_close = "#endif /* End {guard_name} */".format(
+        guard_name=guard_name)
+
+    return "\n".join([
+        header_comment,
+        "\n",
+        header_guard,
+        "\n",
+        macros,
+        "\n",
+        header_guard_close])
 
 
 def main(args):
@@ -220,9 +300,11 @@ def main(args):
     for filename in env_files:
         env_vars.update(process_file_vars(filename))
 
-    # TODO: Print the variables in C preprocessor style macros.
-    pprint(env_vars)
-    print(generate_comment(TEST_COMMENT))
+    header_content = generate_header_content(
+        filename="test.h",
+        env_vars=env_vars,
+        valid_files=env_files)
+    print(header_content)
 
     closer()
 
