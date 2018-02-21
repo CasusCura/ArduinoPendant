@@ -50,9 +50,10 @@ typedef uint8_t byte_t;
 typedef int16_t pin_t;
 
 /* Project Micro Time Value */
-typedef uint32_t time_t;
+// typedef uint32_t time_t;
 
 typedef char char_t;
+typedef bool bool_t;
 
 /* Project String Konstants */
 typedef char_t const * kstring_t;
