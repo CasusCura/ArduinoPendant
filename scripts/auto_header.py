@@ -84,12 +84,10 @@ def open_output_file(options: argparse.Namespace):
     filepath = os.path.abspath(options.output)
 
     logging.debug("Piping output to {}.".format(filepath))
-    # ofile = open(filepath, "w")
-    ofile = None
+    ofile = open(filepath, "w")
 
     def close_output():
-        # ofile.close()
-        pass
+        ofile.close()
 
     return ofile, close_output
 
@@ -304,7 +302,7 @@ def main(args):
         filename="test.h",
         env_vars=env_vars,
         valid_files=env_files)
-    print(header_content)
+    print(header_content, file=ofile)
 
     closer()
 
