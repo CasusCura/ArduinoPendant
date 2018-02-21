@@ -10,7 +10,6 @@ See LICENSE for information.
 import argparse
 from datetime import datetime
 import logging
-from pprint import pprint
 import os
 import re
 import sys
