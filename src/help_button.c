@@ -21,6 +21,7 @@
 #include "help_button.h"
 
 
+/* Number of consecutive consistance pin reads required. */
 #define CONSEC_READ 5
 
 
@@ -31,6 +32,10 @@ static bool_t read_pin(pin_t pin)
     lc = hc = 0;
     while (lc < CONSEC_READ && hc < CONSEC_READ)
     {
+        if (lc || hc)
+        {
+            delay(HELP_BUTTON_DEBOUNCE_DELAY);
+        }
         val = digitalRead(pin);
         if (val == HIGH)
         {
@@ -43,7 +48,6 @@ static bool_t read_pin(pin_t pin)
             lc++;
         }
     }
-
     return (lc == CONSEC_READ);
 }
 
