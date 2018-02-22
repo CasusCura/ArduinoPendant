@@ -25,8 +25,16 @@
 #define D9      3
 #define D10     1
 
-/* Pin Assignments */
-#define PINS_HELP_BUTTON   D0
-#define PINS_RESET_BUTTON  D1
+/*
+ *  Pin Assignments
+ */
+/* Buttons */
+#define PINS_HELP_BUTTON    D0
+#define PINS_RESET_BUTTON   D1
+
+/* LEDs */
+#define PINS_POWER_LED      D2
+#define PINS_ERROR_LED      D3
+#define PINS_REQUEST_LED    D4
 
 #endif /* _PINS_H_ */
