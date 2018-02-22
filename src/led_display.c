@@ -70,6 +70,33 @@ typedef struct {
 
 static led_display_t gDisplay;
 
+/*
+ *  Internal Functions.
+ */
+
+bool_t need_flash(time_ms_t last_check, time_ms_t flash_time, time_ms_t current_time)
+{
+    /* No Overflow */
+    if (last_check < current_time)
+    {
+        return (flash_time > last_check && flash_time <= current_time);
+    }
+
+    /* Overflow */
+    return (flash_time > last_check || flash_time <= current_time);
+}
+
+pin_mode_t toggle_led(pin_t pin, pin_mode_t current)
+{
+    if (current == HIGH)
+    {
+        digitalWrite(pin, LOW);
+        return LOW;
+    }
+    digitalWrite(pin, HIGH);
+    return HIGH;
+}
+
 
 /*
  *  External API
@@ -143,5 +170,76 @@ void led_display_request_acknowledged(void)
 
 void led_display_do_loop(void)
 {
-    // TODO: Complete this function.
+    time_ms_t current_time;
+
+    current_time = millis();
+
+    /* Validate Power */
+    switch (gDisplay.power_mode)
+    {
+        case LED_POWER_GOOD:
+            if (gDisplay.power_state == LOW)
+            {
+                digitalWrite(PINS_POWER_LED, HIGH);
+                gDisplay.power_state = HIGH;
+            }
+            break;
+        case LED_POWER_LOW:
+            if (need_flash(gDisplay.last_check, gDisplay.next_power_flash, current_time))
+            {
+                gDisplay.power_state = toggle_led(
+                    PINS_POWER_LED, gDisplay.power_state);
+                gDisplay.next_power_flash = current_time + POWER_FLASH_DELAY_MS;
+            }
+            break;
+    }
+
+    /* Validate Error */
+    switch (gDisplay.error_mode)
+    {
+        case LED_ERROR_ACTIVATED:
+            if (need_flash(gDisplay.last_check, gDisplay.next_error_flash, current_time))
+            {
+                gDisplay.error_state = toggle_led(
+                    PINS_ERROR_LED, gDisplay.error_state);
+                gDisplay.next_error_flash = current_time + ERROR_FLASH_DELAY_MS;
+            }
+            break;
+        case LED_ERROR_DEACTIVATED:
+            if (gDisplay.error_state == HIGH)
+            {
+                digitalWrite(PINS_ERROR_LED, LOW);
+                gDisplay.error_state = LOW;
+            }
+            break;
+    }
+
+    /* Validate Error */
+    switch (gDisplay.request_mode)
+    {
+        case LED_REQUEST_CLEAR:
+            if (gDisplay.request_state == HIGH)
+            {
+                digitalWrite(PINS_REQUEST_LED, LOW);
+                gDisplay.request_state = LOW;
+            }
+            break;
+        case LED_REQUEST_SENT:
+            if (need_flash(gDisplay.last_check, gDisplay.next_request_flash, current_time))
+            {
+                gDisplay.request_state = toggle_led(
+                    PINS_REQUEST_LED, gDisplay.request_state);
+                gDisplay.next_request_flash = current_time + REQUEST_FLASH_DELAY_MS;
+            }
+            break;
+        case LED_REQUEST_ACK:
+            if (gDisplay.request_state == LOW)
+            {
+                digitalWrite(PINS_REQUEST_LED, HIGH);
+                gDisplay.request_state = HIGH;
+            }
+            break;
+    }
+
+    gDisplay.last_check = current_time;
 }
