@@ -48,11 +48,15 @@ typedef uint8_t byte_t;
 
 /* Project Pin Value Type */
 typedef int16_t pin_t;
+typedef uint8_t pin_mode_t;
 
 /* Project Micro Time Value */
-typedef uint32_t time_t;
+typedef uint32_t time_us_t;
+/* Project Milli Time Value */
+typedef uint32_t time_ms_t;
 
 typedef char char_t;
+typedef bool bool_t;
 
 /* Project String Konstants */
 typedef char_t const * kstring_t;
