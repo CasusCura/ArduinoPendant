@@ -22,7 +22,7 @@
 
 
 /* Number of consecutive consistance pin reads required. */
-#define CONSEC_READ 5
+#define CONSEC_READ     5
 
 
 static bool_t read_pin(pin_t pin)

@@ -19,7 +19,7 @@
 #define D3      0
 #define D4      2
 #define D5      14
-#define D6      16
+#define D6      12
 #define D7      13
 #define D8      15
 #define D9      3
@@ -29,12 +29,12 @@
  *  Pin Assignments
  */
 /* Buttons */
-#define PINS_HELP_BUTTON    D0
-#define PINS_RESET_BUTTON   D1
+#define PINS_HELP_BUTTON    D5
+#define PINS_RESET_BUTTON   D6
 
 /* LEDs */
-#define PINS_POWER_LED      D2
+#define PINS_POWER_LED      D4
 #define PINS_ERROR_LED      D3
-#define PINS_REQUEST_LED    D4
+#define PINS_REQUEST_LED    D2
 
 #endif /* _PINS_H_ */
