@@ -1,3 +1,12 @@
+/*
+ *  Module: Interface Test
+ *
+ *  Author: Alex Dale @superoxigen
+ *
+ *  Copyright (c) 2018 Alex Dale
+ *  See LICENSE for information.
+ */
+
 #include <Arduino.h>
 
 #include "help_button.h"
