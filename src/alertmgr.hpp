@@ -191,16 +191,22 @@ class AlertManager {
 
     void set_enabled_active_mode(enabled_active_mode_t enabled_active_mode)
     {
-        if (_enabled_mode != ENABLED_MODE_ACTIVE)
+        if (_mode != MODE_ENABLED)
         {
-
+            set_enabled_mode(ENABLED_MODE_ACTIVE);
         }
+        else
+        {
+            /* On Exit */
+            do_enabled_active_mode_on_exit(_enabled_active_mode);
+        }
+
+        _enabled_active_mode = enabled_active_mode;
+
+        /* On Enter */
+        do_enabled_active_mode_on_enter(_enabled_active_mode);
     }
 
-    void trigger_enabled(void)
-    {
-
-    }
 
 public:
     AlertManager * get_instance();
@@ -225,6 +231,11 @@ public:
     bool_t is_idle(void)
     {
         return (_mode == MODE_ENABLED && _enabled_mode == ENABLED_MODE_IDLE);
+    }
+
+    bool_t is_active(void)
+    {
+        return (_mode == MODE_ENABLED && _enabled_mode == ENABLED_MODE_ACTIVE);
     }
 
 
