@@ -12,6 +12,7 @@
 #ifndef _ALERT_MANAGER_H_
 #define _ALERT_MANAGER_H_
 
+#include "konstants.h"
 #include "utils.h"
 
 /*
@@ -21,7 +22,9 @@
  *      void alert_flash(void);
  *
  *  Expected Messenger Interface
+ *      void request_help()
  *      void request_help(kstring_t message)
+ *      void cancel_help()
  */
 
 
@@ -45,7 +48,7 @@ class AlertManager {
     typedef enum {
         ENABLED_ACTIVE_MODE_NONE,
         ENABLED_ACTIVE_MODE_SENT,
-        ENABLED_ACTIVE_MODE_WAIT
+        ENABLED_ACTIVE_MODE_ACKNOWLEDGED
     } enabled_active_mode_t;
 
     /* Singleton Instance */
@@ -122,6 +125,40 @@ class AlertManager {
         }
     }
 
+    void do_enabled_mode_on_enter(enabled_mode_t enabled_mode)
+    {
+        switch(enabled_mode)
+        {
+            case ENABLED_MODE_IDLE:
+                break;
+            case ENABLED_MODE_ACTIVE:
+                _messenger->request_help();
+                break;
+        }
+    }
+
+    void do_enabled_active_mode_on_exit(enabled_active_mode_t enabled_active_mode)
+    {
+        switch (enabled_active_mode)
+        {
+            case ENABLED_ACTIVE_MODE_SENT:
+                break;
+            case ENABLED_ACTIVE_MODE_ACKNOWLEDGED:
+                break;
+        }
+    }
+
+    void do_enabled_active_mode_on_enter(enabled_active_mode_t enabled_active_mode)
+    {
+        switch (enabled_active_mode)
+        {
+            case ENABLED_ACTIVE_MODE_SENT:
+                break;
+            case ENABLED_ACTIVE_MODE_ACKNOWLEDGED:
+                break;
+        }
+    }
+
     void set_mode(mode_t mode)
     {
         /* On Exit */
@@ -185,21 +222,47 @@ public:
         return (_mode != MODE_DISCONNECTED) && (_mode != MODE_DISABLED);
     }
 
+    bool_t is_idle(void)
+    {
+        return (_mode == MODE_ENABLED && _enabled_mode == ENABLED_MODE_IDLE);
+    }
+
 
     /* Event Triggers */
 
     void enable(void)
     {
         if (!is_disabled()) return;
+        set_mode(MODE_ENABLED);
+    }
 
+    void disable(void)
+    {
+        if (is_disabled()) return;
+        set_mode(MODE_DISABLED);
     }
 
     void help_button_push(void)
     {
+        if (!is_idle()) return;
+        set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT);
+    }
+
+    void reset_button_push(void)
+    {
+        if (!is_active()) return;
+        _messenger->cancel_help();
+    }
+
+    void acknowledgement_received(void)
+    {
 
     }
 
+    void remove_reset_received(void)
+    {
 
+    }
 
 };
 
