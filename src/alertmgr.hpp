@@ -272,12 +272,6 @@ class AlertManager {
         do_enabled_active_mode_on_enter(_enabled_active_mode);
     }
 
-    void store_enabled_mode(void)
-    {
-
-    }
-
-
 public:
     static AlertManager * get_instance(void)
     {
