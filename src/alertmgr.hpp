@@ -393,6 +393,12 @@ public:
         set_enabled_mode(ENABLED_MODE_IDLE);
     }
 
+    void issue_resolved(void)
+    {
+        if (!is_active()) return;
+        set_enabled_mode(ENABLED_MODE_IDLE);
+    }
+
     void wifi_connection_lost(void)
     {
         if (!is_enabled()) return;
