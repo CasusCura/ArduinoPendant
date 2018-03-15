@@ -24,7 +24,7 @@
  *  Expected Messenger Interface
  *      void request_help()
  *      void request_help(kstring_t message)
- *      void cancel_help()
+ *      void cancel_help(uint32_t request_id)
  */
 
 
@@ -169,6 +169,7 @@ class AlertManager {
                 _indicator->alert_on();
                 break;
             case ENABLED_ACTIVE_MODE_CANCELLING:
+                _messenger->cancel_help(_request_id);
                 _indicator->alert_flash();
                 break;
         }
@@ -321,17 +322,27 @@ public:
 
     void reset_button_push(void)
     {
-        if (!is_active()) return;
+        if (!is_sent() && !is_acknowledged()) return;
+        set_enabled_active_mode(ENABLED_ACTIVE_MODE_CANCELLING);
     }
 
-    void acknowledgement_received(void)
+    void alert_acknowledged(void)
     {
-
+        if (!is_sent())
+        set_enabled_active_mode(ENABLED_ACTIVE_MODE_ACKNOWLEDGED);
     }
 
-    void remove_reset_received(void)
+    void help_request_received(uint32_t rid)
     {
+        if (!is_sending()) return;
+        _request_id = rid;
+        set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT);
+    }
 
+    void cancel_request_received(void)
+    {
+        if (!is_cancelling()) return;
+        set_enabled_mode(ENABLED_MODE_IDLE);
     }
 
 };
