@@ -7,6 +7,8 @@
  *  See LICENSE for information.
  */
 
+#include <Arduino.h>
+
 #include "interface.hpp"
 #include "pin_values.h"
 #include "scheduler.h"
