@@ -29,12 +29,12 @@
  *  Pin Assignments
  */
 /* Buttons */
-#define PINS_HELP_BUTTON        D5
-#define PINS_CANCEL_BUTTON      D6
+#define PIN_HELP_BUTTON        D5
+#define PIN_CANCEL_BUTTON      D6
 
 /* LEDs */
-#define PINS_POWER_LED      D4
-#define PINS_ERROR_LED      D3
-#define PINS_ALERT_LED      D2
+#define PIN_POWER_LED      D4
+#define PIN_ERROR_LED      D3
+#define PIN_ALERT_LED      D2
 
 #endif /* _PIN_VALUES_H_ */
