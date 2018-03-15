@@ -348,6 +348,14 @@ public:
         return (_mode == MODE_DISCONNECTED);
     }
 
+    /* Request ID Getters */
+
+    uint32_t get_request_id(void)
+    {
+        if (!is_sent() && !is_acknowledged() && !is_cancelling()) return 0;
+        return _request_id;
+    }
+
     /* Event Triggers */
 
     void enable(void)
