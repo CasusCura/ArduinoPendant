@@ -60,12 +60,19 @@ class AlertManager {
      *  Instance Vaiables
      */
 
+    /* Interface Handles */
     Indicator *_indicator;
     Messenger *_messenger;
 
+    /* State Variables */
     mode_t _mode;
     enabled_mode_t _enabled_mode;
     enabled_active_mode_t _enabled_active_mode;
+
+    /* Stored State Variables */
+    mode_t _stored_mode;
+    enabled_mode_t _stored_enabled_mode;
+    enabled_active_mode_t _stored_enabled_active_mode;
 
     uint32_t _request_id;
 
@@ -82,6 +89,36 @@ class AlertManager {
         _request_id(0)
     {
         _indicator->alert_off();
+    }
+
+    /*
+     * State Storage
+     */
+
+    void store_state(void)
+    {
+        _stored_mode = _mode;
+        _stored_enabled_mode = _enabled_mode;
+        _stored_enabled_active_mode = _enabled_active_mode;
+    }
+
+    void restore_state(void)
+    {
+        if (_stored_mode == MODE_ENABLED)
+        {
+            if (_stored_enabled_mode == ENABLED_MODE_ACTIVE)
+            {
+                set_enabled_active_mode(_stored_enabled_active_mode);
+            }
+            else
+            {
+                set_enabled_mode(_stored_enabled_mode);
+            }
+        }
+        else
+        {
+            set_mode(_stored_mode);
+        }
     }
 
     /*
@@ -175,12 +212,15 @@ class AlertManager {
         }
     }
 
-    void set_mode(mode_t mode)
+    void set_mode(mode_t mode, bool_t on_exit=true)
     {
         if (!is_init()) return;
 
         /* On Exit */
-        do_mode_on_exit(_mode);
+        if (on_exit)
+        {
+            do_mode_on_exit(_mode);
+        }
 
         /* Transition */
         _mode = mode;
@@ -227,6 +267,11 @@ class AlertManager {
 
         /* On Enter */
         do_enabled_active_mode_on_enter(_enabled_active_mode);
+    }
+
+    void store_enabled_mode(void)
+    {
+
     }
 
 
@@ -343,6 +388,19 @@ public:
     {
         if (!is_cancelling()) return;
         set_enabled_mode(ENABLED_MODE_IDLE);
+    }
+
+    void wifi_connection_lost(void)
+    {
+        if (!is_enabled()) return;
+        store_state();
+        set_mode(MODE_DISCONNECTED, false);
+    }
+
+    void wifi_connection_restored(void)
+    {
+        if (!is_disconnected()) return;
+        restore_state();
     }
 
 };
