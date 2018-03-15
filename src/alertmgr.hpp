@@ -72,8 +72,8 @@ class AlertManager {
      */
 
     AlertManager():
-        _indicator(Indicator::get_instance()),
-        _messenger(Messenger::get_instance()),
+        _indicator(NULL),
+        _messenger(NULL),
         _mode(MODE_DISABLED),
         _enabled_mode(ENABLED_MODE_IDLE),
         _enabled_active_mode(ENABLED_ACTIVE_MODE_SENT),
@@ -161,6 +161,8 @@ class AlertManager {
 
     void set_mode(mode_t mode)
     {
+        if (!is_init()) return;
+
         /* On Exit */
         do_mode_on_exit(_mode);
 
@@ -173,6 +175,8 @@ class AlertManager {
 
     void set_enabled_mode(enabled_mode_t enabled_mode)
     {
+        if (!is_init()) return;
+
         if (_mode != MODE_ENABLED)
         {
             set_mode(MODE_ENABLED);
@@ -191,6 +195,8 @@ class AlertManager {
 
     void set_enabled_active_mode(enabled_active_mode_t enabled_active_mode)
     {
+        if (!is_init()) return;
+
         if (_mode != MODE_ENABLED)
         {
             set_enabled_mode(ENABLED_MODE_ACTIVE);
@@ -209,9 +215,29 @@ class AlertManager {
 
 
 public:
-    AlertManager * get_instance();
+    static AlertManager * get_instance(void)
+    {
+        return &s_instance;
+    }
+
+    /* Interface Setters */
+
+    void set_indicator_interface(Indicator * indicator)
+    {
+        _indicator = indicator;
+    }
+
+    void set_messenger_interface(Messenger * messenger)
+    {
+        _messenger = messenger;
+    }
 
     /* Mode Getters */
+
+    bool_t is_init(void)
+    {
+        return (_messenger && _indicator);
+    }
 
     bool_t is_enabled(void)
     {
