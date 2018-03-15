@@ -1,3 +1,14 @@
+/*
+ *  Module: Main Program
+ *
+ *  Author: Alex Dale @superoxigen
+ *
+ *  Copyright (c) 2018 Alex Dale
+ *  See LICENSE for information.
+ */
+
+#ifndef UNIT_TEST
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
@@ -12,3 +23,5 @@ void loop()
 {
     // put your main code here, to run repeatedly:
 }
+
+#endif /* UNIT_TEST */
