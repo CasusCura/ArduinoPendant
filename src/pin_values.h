@@ -1,5 +1,5 @@
 /*
- *  Module: Pins
+ *  Module: Pin Values
  *
  *  A set of macros which define the different pin values.
  *
@@ -9,8 +9,8 @@
  *  See LICENSE for information.
  */
 
-#ifndef _PINS_H_
-#define _PINS_H_
+#ifndef _PIN_VALUES_H_
+#define _PIN_VALUES_H_
 
 /* NodeMCU Pin Mapping */
 #define D0      16
@@ -29,12 +29,12 @@
  *  Pin Assignments
  */
 /* Buttons */
-#define PINS_HELP_BUTTON    D5
-#define PINS_RESET_BUTTON   D6
+#define PINS_HELP_BUTTON        D5
+#define PINS_CANCEL_BUTTON      D6
 
 /* LEDs */
 #define PINS_POWER_LED      D4
 #define PINS_ERROR_LED      D3
-#define PINS_REQUEST_LED    D2
+#define PINS_ALERT_LED      D2
 
-#endif /* _PINS_H_ */
+#endif /* _PIN_VALUES_H_ */
