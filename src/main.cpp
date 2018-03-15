@@ -1,6 +1,13 @@
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
+/*
+ *  Module: Main Program
+ *
+ *  Author: Alex Dale @superoxigen
+ *
+ *  Copyright (c) 2018 Alex Dale
+ *  See LICENSE for information.
+ */
 
+#include <Arduino.h>
 #include "config.h"
 
 void setup()
