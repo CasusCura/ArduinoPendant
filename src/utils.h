@@ -26,6 +26,7 @@
 
 #define START_C_SECTION extern "C" {
 #define END_C_SECTION };
+#define C_FUNCTION extern "C"
 
 #ifndef NULL
 #define NULL nullptr
@@ -35,6 +36,8 @@
 
 #define START_C_SECTION
 #define END_C_SECTION
+#define C_FUNCTION
+
 #include <stdbool.h>
 
 #ifndef NULL
