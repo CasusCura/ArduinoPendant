@@ -7,6 +7,8 @@
  *  See LICENSE for information.
  */
 
+#ifdef UNIT_TEST
+
 #include "unity.h"
 #include "utils.h"
 
@@ -234,7 +236,6 @@ void test_active_cycle_acknowledged_cancelled(void)
     TEST_ASSERT_EQUAL(alert_manager->get_request_id(), 0);
 }
 
-
 int main(int argc, char ** argv)
 {
     /* Setup Alert Manager */
@@ -248,3 +249,5 @@ int main(int argc, char ** argv)
 
     return 0;
 }
+
+#endif /* UNIT_TEST */

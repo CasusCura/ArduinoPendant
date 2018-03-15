@@ -7,11 +7,7 @@
  *  See LICENSE for information.
  */
 
-#ifndef UNIT_TEST
-
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-
 #include "config.h"
 
 void setup()
@@ -23,5 +19,3 @@ void loop()
 {
     // put your main code here, to run repeatedly:
 }
-
-#endif /* UNIT_TEST */
