@@ -54,7 +54,7 @@ class AlertManager {
     } enabled_active_mode_t;
 
     /* Singleton Instance */
-    static AlertManager s_instance;
+    static AlertManager<Indicator, Messenger> s_instance;
 
     /*
      *  Instance Vaiables
@@ -86,6 +86,9 @@ class AlertManager {
         _mode(MODE_DISABLED),
         _enabled_mode(ENABLED_MODE_IDLE),
         _enabled_active_mode(ENABLED_ACTIVE_MODE_SENT),
+        _stored_mode(MODE_DISABLED),
+        _stored_enabled_mode(ENABLED_MODE_IDLE),
+        _stored_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT),
         _request_id(0)
     {
         _indicator->alert_off();
@@ -403,6 +406,13 @@ public:
         restore_state();
     }
 
+    void hard_reset(void)
+    {
+        _mode = MODE_DISABLED;
+        _enabled_mode = ENABLED_MODE_NONE;
+        _enabled_active_mode = ENABLED_ACTIVE_MODE_NONE;
+        _request_id = 0;
+    }
 };
 
 #endif /* _ALERT_MANAGER_H_ */
