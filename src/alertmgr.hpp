@@ -47,8 +47,10 @@ class AlertManager {
 
     typedef enum {
         ENABLED_ACTIVE_MODE_NONE,
+        ENABLED_ACTIVE_MODE_SENDING,
         ENABLED_ACTIVE_MODE_SENT,
-        ENABLED_ACTIVE_MODE_ACKNOWLEDGED
+        ENABLED_ACTIVE_MODE_ACKNOWLEDGED,
+        ENABLED_ACTIVE_MODE_CANCELLING
     } enabled_active_mode_t;
 
     /* Singleton Instance */
@@ -130,9 +132,9 @@ class AlertManager {
         switch(enabled_mode)
         {
             case ENABLED_MODE_IDLE:
+                _indicator->alert_off();
                 break;
             case ENABLED_MODE_ACTIVE:
-                _messenger->request_help();
                 break;
         }
     }
@@ -141,9 +143,13 @@ class AlertManager {
     {
         switch (enabled_active_mode)
         {
+            case ENABLED_ACTIVE_MODE_SENDING:
+                break;
             case ENABLED_ACTIVE_MODE_SENT:
                 break;
             case ENABLED_ACTIVE_MODE_ACKNOWLEDGED:
+                break;
+            case ENABLED_ACTIVE_MODE_CANCELLING:
                 break;
         }
     }
@@ -152,9 +158,18 @@ class AlertManager {
     {
         switch (enabled_active_mode)
         {
+            case ENABLED_ACTIVE_MODE_SENDING:
+                _messenger->request_help();
+                _indicator->alert_flash();
+                break;
             case ENABLED_ACTIVE_MODE_SENT:
+                _indicator->alert_flash();
                 break;
             case ENABLED_ACTIVE_MODE_ACKNOWLEDGED:
+                _indicator->alert_on();
+                break;
+            case ENABLED_ACTIVE_MODE_CANCELLING:
+                _indicator->alert_flash();
                 break;
         }
     }
@@ -239,31 +254,50 @@ public:
         return (_messenger && _indicator);
     }
 
-    bool_t is_enabled(void)
-    {
-        return (_mode == MODE_ENABLED);
-    }
-
     bool_t is_disabled(void)
     {
         return (_mode == MODE_DISABLED);
     }
 
-    bool_t is_connected(void)
+    bool_t is_enabled(void)
     {
-        return (_mode != MODE_DISCONNECTED) && (_mode != MODE_DISABLED);
+        return (_mode == MODE_ENABLED);
     }
 
     bool_t is_idle(void)
     {
-        return (_mode == MODE_ENABLED && _enabled_mode == ENABLED_MODE_IDLE);
+        return is_enabled() && (_enabled_mode == ENABLED_MODE_IDLE);
     }
 
     bool_t is_active(void)
     {
-        return (_mode == MODE_ENABLED && _enabled_mode == ENABLED_MODE_ACTIVE);
+        return is_enabled() && (_enabled_mode == ENABLED_MODE_ACTIVE);
     }
 
+    bool_t is_sending(void)
+    {
+        return is_active() && (_enabled_active_mode == ENABLED_ACTIVE_MODE_SENDING);
+    }
+
+    bool_t is_sent(void)
+    {
+        return is_active() && (_enabled_active_mode == ENABLED_ACTIVE_MODE_SENT);
+    }
+
+    bool_t is_cancelling(void)
+    {
+        return is_active() && (_enabled_active_mode == ENABLED_ACTIVE_MODE_CANCELLING);
+    }
+
+    bool_t is_acknowledged(void)
+    {
+        return is_active() && (_enabled_active_mode == ENABLED_ACTIVE_MODE_ACKNOWLEDGED);
+    }
+
+    bool_t is_disconnected(void)
+    {
+        return (_mode == MODE_DISCONNECTED);
+    }
 
     /* Event Triggers */
 
@@ -288,7 +322,6 @@ public:
     void reset_button_push(void)
     {
         if (!is_active()) return;
-        _messenger->cancel_help();
     }
 
     void acknowledgement_received(void)
