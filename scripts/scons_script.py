@@ -13,8 +13,8 @@ try:
         print("Creating output directory: gen")
         os.mkdir(output_dir)
     script = os.path.join(os.getcwd(), "scripts/auto_header.py")
-    print("Generating config.h")
-    call("{} -o gen/config.h .env".format(script), shell=True)
+    print("Generating env_config.h")
+    call("{} -o gen/env_config.h .env".format(script), shell=True)
 except Exception as e:
     print(e)
     sys.exit(1)
