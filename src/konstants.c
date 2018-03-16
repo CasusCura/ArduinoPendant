@@ -11,7 +11,7 @@
 
 #include "konstants.h"
 
-#include "config.h"
+#include "env_config.h"
 
 /* Device Information */
 kstring_t kUUID = DEVICE_UUID;

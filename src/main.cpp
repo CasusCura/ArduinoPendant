@@ -12,6 +12,7 @@
 #include "interface.hpp"
 #include "pin_values.h"
 #include "scheduler.h"
+#include "wifi_driver.h"
 
 #define INTERFACE_LOOP_PERIOD_US    2000
 
@@ -39,6 +40,7 @@ void setup()
         INTERFACE_LOOP_PERIOD_US,
         interface_loop_task,
         NULL);
+    wifi_driver_init();
 }
 
 void loop()
