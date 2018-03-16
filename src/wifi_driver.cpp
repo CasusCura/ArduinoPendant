@@ -60,18 +60,23 @@ END_C_SECTION
 
 C_FUNCTION void wifi_driver_connect(void)
 {
-
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        wifi_station_connect();
+    }
 }
 
 C_FUNCTION void wifi_driver_disconnect(void)
 {
-
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        wifi_station_connect();
+    }
 }
 
 C_FUNCTION bool_t wifi_driver_is_connected(void)
 {
-
-    return false;
+    return (WiFi.status() == WL_CONNECTED);
 }
 
 C_FUNCTION void wifi_driver_init(void)
@@ -96,10 +101,9 @@ C_FUNCTION void wifi_driver_init(void)
 #else /* not enterrpise */
     WiFi.begin(kWifiSSID, kWifiPass);
 #endif
-
 }
 
 C_FUNCTION void wifi_driver_loop(void)
 {
-
+    /* Nothing to do... yet. */
 }
