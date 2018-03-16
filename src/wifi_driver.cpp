@@ -11,8 +11,6 @@
 
 #include "utils.h"
 
-#define WIFI_ENTEPRISE
-
 /*
  *  Standard Library
  */
