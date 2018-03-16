@@ -60,7 +60,11 @@ C_FUNCTION void wifi_driver_connect(void)
 {
     if (WiFi.status() != WL_CONNECTED)
     {
+#ifdef WIFI_ENTEPRISE
         wifi_station_connect();
+#else
+        WiFi.begin(kWifiSSID, kWifiPass);
+#endif
     }
 }
 
@@ -68,7 +72,11 @@ C_FUNCTION void wifi_driver_disconnect(void)
 {
     if (WiFi.status() != WL_CONNECTED)
     {
-        wifi_station_connect();
+#ifdef WIFI_ENTEPRISE
+        wifi_station_disconnect();
+#else
+        WiFi.disconnect();
+#endif
     }
 }
 
