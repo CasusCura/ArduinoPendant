@@ -94,8 +94,6 @@ C_FUNCTION void _dlog(kstring_t file, kstring_t line, kstring_t level, kstring_t
     /*
      *  Main Content.
      */
-
-
     Serial.print(message);
     Serial.flush();
 
