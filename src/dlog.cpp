@@ -10,10 +10,12 @@
 #include <Arduino.h>
 #include <string.h>
 
+#include "smlstr.h"
 #include "dlog.h"
 
 #define BAUD_RATE 115200
 #define PREAMBLE_LENGTH 128
+#define LINE_BUF_LENGTH 8
 
 
 kstring_t kDLogInfo = "[INFO ]";
@@ -33,9 +35,10 @@ C_FUNCTION void _dlog_init(void)
     dlog_initialized = true;
 }
 
-C_FUNCTION void _dlog(kstring_t file, kstring_t line, kstring_t level, kstring_t message, kstring_t sample)
+C_FUNCTION void _dlog(kstring_t file, uint16_t line, kstring_t level, kstring_t message, kstring_t sample)
 {
     char_t preamble[PREAMBLE_LENGTH];
+    char_t line_buf[LINE_BUF_LENGTH];
     string_t optr;
     kstring_t iptr;
     uint16_t len;
@@ -76,7 +79,9 @@ C_FUNCTION void _dlog(kstring_t file, kstring_t line, kstring_t level, kstring_t
     }
 
     /* Line Number */
-    iptr = line;
+    smluintfmt(line_buf, line, LINE_BUF_LENGTH);
+
+    iptr = line_buf;
     while (*iptr && (len+1) < PREAMBLE_LENGTH)
     {
         *optr++ = *iptr++;
