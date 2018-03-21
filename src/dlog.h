@@ -39,6 +39,9 @@ END_C_SECTION
 #define DLOG_INIT()
 
 #define DLOG(message)
+#define DLOG2(message, sample)
+#define DLOG_WARN(message)
+#define DLOG_WARN2(message, sample)
 #define DLOG_ERR(message)
 #define DLOG_ERR2(message, sample)
 
