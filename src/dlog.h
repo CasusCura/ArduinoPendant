@@ -27,7 +27,7 @@ extern kstring_t kDLogError;
 #define DLOG_WARN(message) _dlog(__FILE__, "__LINE__", kDLogWarn, message, NULL)
 #define DLOG_WARN2(message, sample) _dlog(__FILE__, "__LINE__", kDLogWarn, message, sample)
 #define DLOG_ERR(message) _dlog(__FILE__, "__LINE__", kDLogError, message, NULL)
-#define DLOG_ERR2(message, sample) _dlog2(__FILE__, "__LINE__", kDLogWarn, message, sample)
+#define DLOG_ERR2(message, sample) _dlog(__FILE__, "__LINE__", kDLogError, message, sample)
 
 void _dlog_init(void);
 void _dlog(kstring_t file, kstring_t line, kstring_t level, kstring_t message, kstring_t sample);
