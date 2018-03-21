@@ -18,7 +18,7 @@ class BufStr {
     uint16_t _length;
 
 public:
-    BufStr(char_t * buffer, uint16_t size, bool_t clear=false);
+    BufStr(char_t * buffer, uint16_t size, bool_t clear=true);
 
     bool_t clear(void);
     bool_t push_str(kstring_t s);
