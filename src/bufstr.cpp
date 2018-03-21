@@ -67,14 +67,12 @@ bool_t BufStr::push_str(kstring_t s)
 
 bool_t BufStr::push_char(char_t c)
 {
-    char_t * ptr;
-
     if (!_start)
     {
         return false;
     }
 
-    if ((_length + 2) >= _size)
+    if ((_length + 1) >= _size)
     {
         return false;
     }
