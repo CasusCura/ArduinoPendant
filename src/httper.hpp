@@ -13,7 +13,6 @@
 #define _HTTPER_HPP_
 
 #include "bufstr.hpp"
-#include "json.hpp"
 #include "utils.h"
 
 #define HTTPER_PARAMETER_MAX    5
@@ -58,11 +57,12 @@ public:
     bool_t remove_parameter(kstring_t key);
 
     status_t send_get(char_t * payload, uint16_t payload_length);
-    status_t send_create();
+    status_t send_post(void);
 
 private:
     bool_t write_parameters(BufStr * bstr);
     bool_t write_query_parameters(BufStr * uri);
+    bool_t write_url(BufStr * url);
 };
 
 #endif /* _HTTPER_HPP_ */
