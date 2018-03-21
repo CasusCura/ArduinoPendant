@@ -184,7 +184,7 @@ HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
             {
                 response_body = client.getString();
                 DLOG2("Got data", response_body.c_str());
-                if (strlcpy(payload, response_body.c_str(), payload_length) >= payload_length)
+                if (smlstrcpy(payload, response_body.c_str(), payload_length) >= payload_length)
                 {
                     DLOG_ERR("Provided payload buffer is too small");
                     return STATUS_PAYLOAD_TOO_SMALL;
