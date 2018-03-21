@@ -19,7 +19,7 @@
 /*
  *  Device Information
  */
-extern kstring_t kUUID;
+extern kstring_t kDeviceUUID;
 extern kstring_t kSerialId;
 
 /*

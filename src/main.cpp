@@ -9,6 +9,7 @@
 
 #include <Arduino.h>
 
+#include "dlog.h"
 #include "interface.hpp"
 #include "pin_values.h"
 #include "scheduler.h"
@@ -34,6 +35,7 @@ uint8_t interface_loop_task(void *)
 
 void setup()
 {
+    DLOG_INIT();
     scheduler_init();
     scheduler_periodic_callback(
         TASK_PRIORITY_LOWEST,

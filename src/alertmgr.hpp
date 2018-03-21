@@ -23,7 +23,6 @@
  *
  *  Expected Messenger Interface
  *      void request_help()
- *      void request_help(kstring_t message)
  *      void cancel_help(uint32_t request_id)
  */
 

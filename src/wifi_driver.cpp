@@ -16,6 +16,7 @@
  */
 
 #include <string.h>
+#include "smlstr.h"
 
 /*
  * Native Drivers
@@ -92,8 +93,8 @@ C_FUNCTION void wifi_driver_init(void)
     wifi_station_disconnect();
 
     memset(&wifi_config, 0, sizeof(wifi_config));
-    strcpy((string_t) wifi_config.ssid, kWifiSSID);
-    strcpy((string_t) wifi_config.password, kWifiPass);
+    smlstrcpy((string_t) wifi_config.ssid, kWifiSSID, sizeof(wifi_config.ssid));
+    smlstrcpy((string_t) wifi_config.password, kWifiPass, sizeof(wifi_config.password));
     wifi_station_set_config(&wifi_config);
 
     /* Enabled Enterprise Authentication. */

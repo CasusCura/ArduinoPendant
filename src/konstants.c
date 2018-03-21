@@ -14,7 +14,7 @@
 #include "env_config.h"
 
 /* Device Information */
-kstring_t kUUID = DEVICE_UUID;
+kstring_t kDeviceUUID = DEVICE_UUID;
 kstring_t kSerialId = DEVICE_SERIAL;
 
 /* WiFi Information */
