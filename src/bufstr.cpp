@@ -35,6 +35,7 @@ bool_t BufStr::clear(void)
     if (_start && _size)
     {
         memset(_start, 0, _size);
+        _length = 0;
         return true;
     }
     return false;
