@@ -29,6 +29,10 @@ extern kstring_t kWifiSSID;
 extern kstring_t kWifiUser;
 extern kstring_t kWifiPass;
 
+/*
+ *  Platform Information
+ */
 
+extern kstring_t kPlatformHost;
 
 #endif /* _KONSTANTS_H_ */

@@ -21,3 +21,6 @@ kstring_t kSerialId = DEVICE_SERIAL;
 kstring_t kWifiSSID = WIFI_SSID;
 kstring_t kWifiUser = WIFI_USERNAME;
 kstring_t kWifiPass = WIFI_PASSWORD;
+
+/* Platform Information */
+kstring_t kPlatformHost = PLATFORM_HOST;
