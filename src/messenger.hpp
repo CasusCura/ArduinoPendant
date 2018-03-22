@@ -18,7 +18,7 @@ class Messenger {
 
     Messenger();
 public:
-    Messenger * get_instance(void);
+    static Messenger * get_instance(void);
 
     bool_t request_help(uuid_ref_t request_id);
     bool_t cancel_help(uuid_kref_t request_id);
