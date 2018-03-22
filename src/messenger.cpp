@@ -115,7 +115,7 @@ bool_t Messenger::cancel_help(uuid_kref_t request_id)
     client.push_parameter(kRequestUUIDKey, request_id);
 
     /* Send Post */
-    DLOG("Sending request for help");
+    DLOG("Sending request to cancel help");
     status = client.send_post();
 
     if (status == HTTPer::STATUS_OK)
@@ -125,5 +125,25 @@ bool_t Messenger::cancel_help(uuid_kref_t request_id)
     }
 
     DLOG_ERR("Failed to cancel request");
+    return false;
+}
+
+bool_t Messenger::test(void)
+{
+    HTTPer client(kPlatformHost, PLATFORM_PORT, kTestPath);
+    HTTPer::status_t status;
+
+    DLOG("Pushing parameters");
+    client.push_parameter(kDeviceUUIDKey, kDeviceUUID);
+
+    DLOG("Testing service");
+    status = client.send_get();
+
+    if (status == HTTPer::STATUS_OK)
+    {
+        DLOG("Test successful");
+        return true;
+    }
+    DLOG_ERR("Test failed");
     return false;
 }

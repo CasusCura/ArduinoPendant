@@ -22,6 +22,8 @@ public:
 
     bool_t request_help(uuid_ref_t request_id);
     bool_t cancel_help(uuid_kref_t request_id);
+
+    bool_t test(void);
 };
 
 #endif /* _MESSENGER_HPP_ */
