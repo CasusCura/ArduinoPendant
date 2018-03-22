@@ -162,7 +162,7 @@ HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
     client.addHeader(String(kAccept), String(kApplicationJson));
 
     /* Set Authorization of Device */
-    client.setAuthorization(kWifiUser, kWifiPass);
+    client.setAuthorization(kDeviceUser, kDevicePass);
 
     DLOG("Sending GET request...");
     http_code = client.GET();
@@ -259,7 +259,7 @@ HTTPer::status_t HTTPer::send_post(void)
     }
 
     /* Set Authorization of Device */
-    client.setAuthorization(kWifiUser, kWifiPass);
+    client.setAuthorization(kDeviceUser, kDevicePass);
 
     DLOG("Sending POST request...");
     http_code = client.POST((byte_t *) payload.buffer(), payload.length());

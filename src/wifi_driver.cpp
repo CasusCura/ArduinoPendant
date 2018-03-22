@@ -93,15 +93,15 @@ C_FUNCTION void wifi_driver_init(void)
     wifi_station_disconnect();
 
     memset(&wifi_config, 0, sizeof(wifi_config));
-    smlstrcpy((string_t) wifi_config.ssid, kWifiSSID, sizeof(wifi_config.ssid));
-    smlstrcpy((string_t) wifi_config.password, kWifiPass, sizeof(wifi_config.password));
+    smlstrcpy((string_t) wifi_config.ssid, kEntWifiSSID, sizeof(wifi_config.ssid));
+    smlstrcpy((string_t) wifi_config.password, kEntWifiPass, sizeof(wifi_config.password));
     wifi_station_set_config(&wifi_config);
 
     /* Enabled Enterprise Authentication. */
     wifi_station_set_wpa2_enterprise_auth(1);
 
-    wifi_station_set_enterprise_username((byte_t *) kWifiUser, strlen(kWifiUser));
-    wifi_station_set_enterprise_password((byte_t *) kWifiPass, strlen(kWifiPass));
+    wifi_station_set_enterprise_username((byte_t *) kEntWifiUser, strlen(kEntWifiUser));
+    wifi_station_set_enterprise_password((byte_t *) kEntWifiPass, strlen(kEntWifiPass));
 
     wifi_station_connect();
 
