@@ -57,7 +57,7 @@ public:
     bool_t remove_parameter(kstring_t key);
 
     status_t send_get(char_t * payload, uint16_t payload_length);
-    status_t send_post(void);
+    status_t send_post(char_t * payload, uint16_t payload_length);
 
 private:
     bool_t write_parameters(BufStr * bstr);

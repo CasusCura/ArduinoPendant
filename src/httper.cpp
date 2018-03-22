@@ -216,13 +216,14 @@ HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
     }
 }
 
-HTTPer::status_t HTTPer::send_post(void)
+HTTPer::status_t HTTPer::send_post(char_t * payload, uint16_t payload_length)
 {
     HTTPClient client;
+    String response_body;
     char_t url_buffer[URL_BUFFER_LENGTH];
-    char_t payload_buffer[PAYLOAD_BUFFER_LENGTH];
+    char_t request_payload_buffer[PAYLOAD_BUFFER_LENGTH];
     BufStr url(url_buffer, URL_BUFFER_LENGTH);
-    BufStr payload(payload_buffer, PAYLOAD_BUFFER_LENGTH);
+    BufStr request_payload(request_payload_buffer, PAYLOAD_BUFFER_LENGTH);
     int16_t http_code;
     kstring_t http_code_str;
 
@@ -244,7 +245,7 @@ HTTPer::status_t HTTPer::send_post(void)
     }
 
     /* Writing payload parameters */
-    if (!write_parameters(&payload))
+    if (!write_parameters(&request_payload))
     {
         DLOG_ERR("Could not write payload parameters to URL");
         return STATUS_INTERNAL_ERROR;
@@ -262,7 +263,7 @@ HTTPer::status_t HTTPer::send_post(void)
     client.setAuthorization(kDeviceUser, kDevicePass);
 
     DLOG("Sending POST request...");
-    http_code = client.POST((byte_t *) payload.buffer(), payload.length());
+    http_code = client.POST((byte_t *) request_payload.buffer(), request_payload.length());
 
     if (http_code < 0)
     {
@@ -276,8 +277,26 @@ HTTPer::status_t HTTPer::send_post(void)
     switch (http_code)
     {
         case HTTP_CODE_OK:
-        case HTTP_CODE_NO_CONTENT:
         case HTTP_CODE_CREATED:
+            /* Parse Payload */
+            if (payload)
+            {
+                response_body = client.getString();
+                DLOG2("Got data", response_body.c_str());
+                if (smlstrcpy(payload, response_body.c_str(), payload_length) >= payload_length)
+                {
+                    DLOG_ERR("Provided payload buffer is too small");
+                    return STATUS_PAYLOAD_TOO_SMALL;
+                }
+                return STATUS_OK;
+            }
+            return STATUS_OK;
+        case HTTP_CODE_NO_CONTENT:
+            if (payload)
+            {
+                DLOG("No data, clearing buffer");
+                memset(payload, 0, payload_length);
+            }
             return STATUS_OK;
         case HTTP_CODE_BAD_REQUEST:
         case HTTP_CODE_METHOD_NOT_ALLOWED:
