@@ -27,6 +27,9 @@ typedef char_t const * uuid_kref_t;
 extern kstring_t kZeroUUID;
 
 bool_t uuid_is_uuid(uuid_kref_t uuid);
+bool_t uuid_is_zero(uuid_kref_t uuid);
+
+void uuid_set_zero(uuid_ref_t uuid);
 
 END_C_SECTION
 
