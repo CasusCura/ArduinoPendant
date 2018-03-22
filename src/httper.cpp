@@ -41,6 +41,8 @@ static kstring_t http_code_to_string(int16_t http_code)
         /* 200 series */
         case HTTP_CODE_OK:
             return "OK";
+        case HTTP_CODE_ACCEPTED:
+            return "Accepted";
         case HTTP_CODE_CREATED:
             return "CREATED";
         case HTTP_CODE_NO_CONTENT:
@@ -115,6 +117,11 @@ bool_t HTTPer::remove_parameter(kstring_t key)
     _parameter_list.n--;
 
     return true;
+}
+
+HTTPer::status_t HTTPer::send_get(void)
+{
+    return send_get(NULL, 0);
 }
 
 HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
@@ -216,6 +223,11 @@ HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
     }
 }
 
+HTTPer::status_t HTTPer::send_post(void)
+{
+    return send_post(NULL, 0);
+}
+
 HTTPer::status_t HTTPer::send_post(char_t * payload, uint16_t payload_length)
 {
     HTTPClient client;
@@ -272,12 +284,13 @@ HTTPer::status_t HTTPer::send_post(char_t * payload, uint16_t payload_length)
     }
 
     http_code_str = http_code_to_string(http_code);
-    DLOG2("GET", http_code_str);
+    DLOG2("POST", http_code_str);
 
     switch (http_code)
     {
         case HTTP_CODE_OK:
         case HTTP_CODE_CREATED:
+        case HTTP_CODE_ACCEPTED:
             /* Parse Payload */
             if (payload)
             {
