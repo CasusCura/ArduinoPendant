@@ -18,6 +18,7 @@
 #define PLATFORM_PORT 80
 
 static kstring_t kHelpRequestPath = "/patient/request";
+static kstring_t kCancelRequestPath = "/patient/request/cancel";
 static kstring_t kTestPath = "/patient/test";
 
 static kstring_t kDeviceUUIDKey = "device_id";
@@ -64,25 +65,29 @@ bool_t Messenger::request_help(uuid_ref_t request_id)
         if (!root.success())
         {
             DLOG_WARN2("Failed to parse object as JSON", response_body);
-            goto RETURN_DEFAULT;
+            uuid_set_zero(request_id);
+            return true;
         }
         else if (!root[kRequestUUIDKey].success())
         {
             DLOG_WARN2("Returned JSON does not have request ID key", response_body);
-            goto RETURN_DEFAULT;
+            uuid_set_zero(request_id);
+            return true;
         }
         smlstrcpy(request_id, root[kRequestUUIDKey], UUID_BUFFER_LENGTH);
         if (!uuid_is_uuid(request_id))
         {
             DLOG_WARN2("Returned request ID is not UUID", request_id);
-            goto RETURN_DEFAULT;
+            uuid_set_zero(request_id);
+            return true;
         }
         return true;
     }
     else if (status == HTTPer::STATUS_PAYLOAD_TOO_SMALL)
     {
         DLOG_WARN("Response body was too small");
-        goto RETURN_DEFAULT;
+        uuid_set_zero(request_id);
+        return true;
     }
     else
     {
@@ -91,13 +96,34 @@ bool_t Messenger::request_help(uuid_ref_t request_id)
     }
 
     return true;
-RETURN_DEFAULT:
-    smlstrcpy(request_id, kZeroUUID, UUID_BUFFER_LENGTH);
-    return true;
 }
 
 bool_t Messenger::cancel_help(uuid_kref_t request_id)
 {
+    HTTPer client(kPlatformHost, PLATFORM_PORT, kCancelRequestPath);
+    HTTPer::status_t status;
 
-    return true;
+    if (!request_id)
+    {
+        DLOG_ERR("Cannot cancel help without request ID");
+        return false;
+    }
+
+    /* Push Parameters */
+    DLOG("Pushing parameters");
+    client.push_parameter(kDeviceUUIDKey, kDeviceUUID);
+    client.push_parameter(kRequestUUIDKey, request_id);
+
+    /* Send Post */
+    DLOG("Sending request for help");
+    status = client.send_post();
+
+    if (status == HTTPer::STATUS_OK)
+    {
+        DLOG("Request successully cancelled");
+        return true;
+    }
+
+    DLOG_ERR("Failed to cancel request");
+    return false;
 }
