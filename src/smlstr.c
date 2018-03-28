@@ -18,9 +18,9 @@ static kstring_t kDigits = "0123456789ABCDEF";
 #define DEC_LAST_DIGIT(val) (kDigits[(val) % 10])
 #define HEX_LAST_DIGIT(val) (kDigits[(val) % 0x10])
 
-static inline uint8_t num_of_dec_digits(uint32_t val)
+static inline uint16_t num_of_dec_digits(uint32_t val)
 {
-    uint8_t n;
+    uint16_t n;
     for (n = 0; val; n++)
     {
         val = val / 10;
@@ -30,9 +30,9 @@ static inline uint8_t num_of_dec_digits(uint32_t val)
 
 #ifdef SMLSTR_HEX_ENABLED
 
-static inline uint8_t num_of_hex_digits(uint32_t val)
+static inline uint16_t num_of_hex_digits(uint32_t val)
 {
-    uint8_t n;
+    uint16_t n;
     for (n = 0; val; n++)
     {
         val = val / 16;
@@ -43,9 +43,9 @@ static inline uint8_t num_of_hex_digits(uint32_t val)
 #endif /* SMLSTR_HEX_ENABLED */
 
 
-uint8_t smlstrcat(string_t dest, kstring_t src, uint8_t len)
+uint16_t smlstrcat(string_t dest, kstring_t src, uint16_t len)
 {
-    uint8_t required;
+    uint16_t required;
     string_t dptr;
     kstring_t sptr;
 
@@ -89,9 +89,9 @@ uint8_t smlstrcat(string_t dest, kstring_t src, uint8_t len)
 }
 
 
-uint8_t smlstrcpy(string_t dest, kstring_t src, uint8_t len)
+uint16_t smlstrcpy(string_t dest, kstring_t src, uint16_t len)
 {
-    uint8_t required;
+    uint16_t required;
     string_t dptr;
     kstring_t sptr;
 
@@ -127,9 +127,9 @@ uint8_t smlstrcpy(string_t dest, kstring_t src, uint8_t len)
     return required;
 }
 
-uint8_t smluintfmt(string_t dest, uint32_t val, uint8_t len)
+uint16_t smluintfmt(string_t dest, uint32_t val, uint16_t len)
 {
-    uint8_t required, i;
+    uint16_t required, i;
     string_t dptr;
 
     if (!dest)
@@ -156,6 +156,11 @@ uint8_t smluintfmt(string_t dest, uint32_t val, uint8_t len)
             val = val / 10;
         }
     }
+    else
+    {
+        /* Destination buffer is zero-sized */
+        return required;
+    }
 
     while (len > 0 && dest <= dptr)
     {
@@ -166,9 +171,9 @@ uint8_t smluintfmt(string_t dest, uint32_t val, uint8_t len)
     return required;
 }
 
-uint8_t smlintfmt(string_t dest, int32_t val, uint8_t len)
+uint16_t smlintfmt(string_t dest, int32_t val, uint16_t len)
 {
-    uint8_t required;
+    uint16_t required;
 
     if (!dest)
     {
@@ -239,7 +244,7 @@ bool_t smlisdec(kstring_t src)
         ptr++;
     }
 
-    while (*ptr && isdigit(*ptr))
+    while (*ptr && isdigit((*ptr)))
     {
         ptr++;
     }
@@ -260,7 +265,7 @@ uint32_t smluintscan(kstring_t src)
         return 0;
     }
 
-    while (*ptr && isdigit(*ptr))
+    while (*ptr && isdigit((*ptr)))
     {
         value *= 10;
         value += (*ptr - '0');
@@ -277,7 +282,6 @@ uint32_t smluintscan(kstring_t src)
 
 int32_t smlintscan(kstring_t src)
 {
-    char_t const * ptr;
     uint8_t neg;
     int32_t value;
 
@@ -286,8 +290,8 @@ int32_t smlintscan(kstring_t src)
         return 0;
     }
 
-    neg = (*ptr == '-') ? 1 : 0;
-    value = smluintscan(&ptr[neg]);
+    neg = (*src == '-') ? 1 : 0;
+    value = smluintscan(&src[neg]);
     value = (value < 0) ? -value : value;
     value = (value < 0) ? 0 : value;
     return neg ? -value : value;
