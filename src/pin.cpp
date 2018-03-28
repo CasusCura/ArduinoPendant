@@ -15,8 +15,9 @@
 
 Pin::Pin(pin_t pin_num, pin_mode_t pin_mode, bool_t active_low):
     _pin_num(pin_num),
+    _active_low((active_low)?1:0),
     _input((pin_mode == INPUT_MODE)?1:0),
-    _active_low((active_low)?1:0)
+    _active(0)
 {
     pinMode(pin_num, _input ? INPUT : OUTPUT);
     deactivate();
