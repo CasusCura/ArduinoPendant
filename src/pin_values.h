@@ -29,8 +29,8 @@
  *  Pin Assignments
  */
 /* Buttons */
-#define PIN_HELP_BUTTON        D5
-#define PIN_CANCEL_BUTTON      D6
+#define PIN_HELP_BUTTON        D0
+#define PIN_CANCEL_BUTTON      D1
 
 /* LEDs */
 #define PIN_POWER_LED      D4
