@@ -12,7 +12,10 @@
 #ifndef _ALERT_MANAGER_H_
 #define _ALERT_MANAGER_H_
 
+#include <string.h>
+
 #include "konstants.h"
+#include "uuid.h"
 #include "utils.h"
 
 /*
@@ -73,7 +76,7 @@ class AlertManager {
     enabled_mode_t _stored_enabled_mode;
     enabled_active_mode_t _stored_enabled_active_mode;
 
-    uint32_t _request_id;
+    uuid_t _request_id;
 
     /*
      *  Constructor
@@ -87,10 +90,9 @@ class AlertManager {
         _enabled_active_mode(ENABLED_ACTIVE_MODE_SENT),
         _stored_mode(MODE_DISABLED),
         _stored_enabled_mode(ENABLED_MODE_IDLE),
-        _stored_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT),
-        _request_id(0)
+        _stored_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT)
     {
-        _indicator->alert_off();
+        memset(_request_id, 0, sizeof(_request_id));
     }
 
     /*
@@ -148,6 +150,7 @@ class AlertManager {
             case MODE_DISABLED:
                 break;
             case MODE_ENABLED:
+                _indicator->power_on();
                 do_enabled_mode_on_enter(_enabled_mode);
                 break;
             case MODE_DISCONNECTED:
@@ -159,6 +162,8 @@ class AlertManager {
     {
         switch (enabled_mode)
         {
+            case ENABLED_MODE_NONE:
+                break;
             case ENABLED_MODE_IDLE:
                 break;
             case ENABLED_MODE_ACTIVE:
@@ -170,6 +175,8 @@ class AlertManager {
     {
         switch(enabled_mode)
         {
+            case ENABLED_MODE_NONE:
+                break;
             case ENABLED_MODE_IDLE:
                 _indicator->alert_off();
                 break;
@@ -182,6 +189,8 @@ class AlertManager {
     {
         switch (enabled_active_mode)
         {
+            case ENABLED_ACTIVE_MODE_NONE:
+                break;
             case ENABLED_ACTIVE_MODE_SENDING:
                 break;
             case ENABLED_ACTIVE_MODE_SENT:
@@ -197,8 +206,9 @@ class AlertManager {
     {
         switch (enabled_active_mode)
         {
+            case ENABLED_ACTIVE_MODE_NONE:
+                break;
             case ENABLED_ACTIVE_MODE_SENDING:
-                _messenger->request_help();
                 _indicator->alert_flash();
                 break;
             case ENABLED_ACTIVE_MODE_SENT:
@@ -208,7 +218,6 @@ class AlertManager {
                 _indicator->alert_on();
                 break;
             case ENABLED_ACTIVE_MODE_CANCELLING:
-                _messenger->cancel_help(_request_id);
                 _indicator->alert_flash();
                 break;
         }
@@ -343,9 +352,9 @@ public:
 
     /* Request ID Getters */
 
-    uint32_t get_request_id(void)
+    uuid_kref_t get_request_id(void)
     {
-        if (!is_sent() && !is_acknowledged() && !is_cancelling()) return 0;
+        if (!is_sent() && !is_acknowledged() && !is_cancelling()) return NULL;
         return _request_id;
     }
 
@@ -354,6 +363,7 @@ public:
     void enable(void)
     {
         if (!is_disabled()) return;
+        if (!_indicator || !_messenger) return;
         set_mode(MODE_ENABLED);
     }
 
@@ -366,7 +376,7 @@ public:
     void help_button_push(void)
     {
         if (!is_idle()) return;
-        set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT);
+        set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENDING);
     }
 
     void reset_button_push(void)
@@ -381,17 +391,22 @@ public:
         set_enabled_active_mode(ENABLED_ACTIVE_MODE_ACKNOWLEDGED);
     }
 
-    void help_request_received(uint32_t rid)
+    void try_send(void)
     {
         if (!is_sending()) return;
-        _request_id = rid;
-        set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT);
+        if (_messenger->request_help(_request_id))
+        {
+            set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT);
+        }
     }
 
-    void cancel_request_received(void)
+    void try_cancel(void)
     {
         if (!is_cancelling()) return;
-        set_enabled_mode(ENABLED_MODE_IDLE);
+        if (_messenger->cancel_help(_request_id))
+        {
+            set_enabled_mode(ENABLED_MODE_IDLE);
+        }
     }
 
     void issue_resolved(void)
@@ -420,6 +435,9 @@ public:
         _enabled_active_mode = ENABLED_ACTIVE_MODE_NONE;
         _request_id = 0;
     }
+
+    typedef Indicator indicator_t;
+    typedef Messenger messenger_t;
 };
 
 #endif /* _ALERT_MANAGER_H_ */
