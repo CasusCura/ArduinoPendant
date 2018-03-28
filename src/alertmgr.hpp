@@ -14,9 +14,29 @@
 
 #include <string.h>
 
+#include "dlog.h"
 #include "konstants.h"
 #include "uuid.h"
 #include "utils.h"
+
+/*
+ *  External String Constants
+ */
+extern kstring_t kAlertManagerUnknown;
+
+extern kstring_t kAlertManagerModeDisabled;
+extern kstring_t kAlertManagerModeEnabled;
+extern kstring_t kAlertManagerModeDisconnected;
+
+extern kstring_t kAlertManagerEnabledModeNone;
+extern kstring_t kAlertManagerEnabledModeIdle;
+extern kstring_t kAlertManagerEnabledModeActive;
+
+extern kstring_t kAlertManagerEnabledActiveModeNone;
+extern kstring_t kAlertManagerEnabledActiveModeSending;
+extern kstring_t kAlertManagerEnabledActiveModeSent;
+extern kstring_t kAlertManagerEnabledActiveModeAcknowledged;
+extern kstring_t kAlertManagerEnabledActiveModeCancelling;
 
 /*
  *  Expected Indicator Interface
@@ -28,8 +48,6 @@
  *      void request_help()
  *      void cancel_help(uint32_t request_id)
  */
-
-
 template<class Indicator, class Messenger>
 class AlertManager {
     /*
@@ -54,6 +72,55 @@ class AlertManager {
         ENABLED_ACTIVE_MODE_ACKNOWLEDGED,
         ENABLED_ACTIVE_MODE_CANCELLING
     } enabled_active_mode_t;
+
+    static kstring_t mode_to_kstring(mode_t mode)
+    {
+        switch (mode)
+        {
+            case MODE_ENABLED:
+                return kAlertManagerModeEnabled;
+            case MODE_DISABLED:
+                return kAlertManagerModeDisabled;
+            case MODE_DISCONNECTED:
+                return kAlertManagerModeDisconnected;
+            default:
+                return kAlertManagerUnknown;
+        }
+    }
+
+    static kstring_t enabled_mode_to_kstring(enabled_mode_t enabled_mode)
+    {
+        switch (enabled_mode)
+        {
+            case ENABLED_MODE_NONE:
+                return kAlertManagerEnabledModeNone;
+            case ENABLED_MODE_IDLE:
+                return kAlertManagerEnabledModeIdle;
+            case ENABLED_MODE_ACTIVE:
+                return kAlertManagerEnabledModeActive;
+            default:
+                return kAlertManagerUnknown;
+        }
+    }
+
+    static kstring_t enabled_active_mode_to_kstring(enabled_active_mode_t enabled_active_mode)
+    {
+        switch (enabled_active_mode)
+        {
+            case ENABLED_ACTIVE_MODE_NONE:
+                return kAlertManagerEnabledActiveModeNone;
+            case ENABLED_ACTIVE_MODE_SENDING:
+                return kAlertManagerEnabledActiveModeSending;
+            case ENABLED_ACTIVE_MODE_SENT:
+                return kAlertManagerEnabledActiveModeSent;
+            case ENABLED_ACTIVE_MODE_ACKNOWLEDGED:
+                return kAlertManagerEnabledActiveModeAcknowledged;
+            case ENABLED_ACTIVE_MODE_CANCELLING:
+                return kAlertManagerEnabledActiveModeCancelling;
+            default:
+                return kAlertManagerUnknown;
+        }
+    }
 
     /* Singleton Instance */
     static AlertManager<Indicator, Messenger> s_instance;
@@ -234,6 +301,7 @@ class AlertManager {
         }
 
         /* Transition */
+        DLOG2("Alert Manager mode", mode_to_kstring(mode));
         _mode = mode;
 
         /* On Enter */
@@ -254,6 +322,7 @@ class AlertManager {
             do_enabled_mode_on_exit(_enabled_mode);
         }
 
+        DLOG2("Alert Manager enabled mode", enabled_mode_to_kstring(enabled_mode));
         _enabled_mode = enabled_mode;
 
         /* On Enter */
@@ -275,6 +344,7 @@ class AlertManager {
         }
 
         _enabled_active_mode = enabled_active_mode;
+        DLOG2("Alert Manager enabled active mode", enabled_active_mode_to_kstring(enabled_active_mode));
 
         /* On Enter */
         do_enabled_active_mode_on_enter(_enabled_active_mode);
@@ -376,24 +446,28 @@ public:
     void help_button_push(void)
     {
         if (!is_idle()) return;
+        DLOG("Help Button Pushed Event");
         set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENDING);
     }
 
     void reset_button_push(void)
     {
         if (!is_sent() && !is_acknowledged()) return;
+        DLOG("Cancel Button Pushed Event");
         set_enabled_active_mode(ENABLED_ACTIVE_MODE_CANCELLING);
     }
 
     void alert_acknowledged(void)
     {
         if (!is_sent())
+        DLOG("Alert Acknowledged Event");
         set_enabled_active_mode(ENABLED_ACTIVE_MODE_ACKNOWLEDGED);
     }
 
     void try_send(void)
     {
         if (!is_sending()) return;
+        DLOG("Try Send Alert Event");
         if (_messenger->request_help(_request_id))
         {
             set_enabled_active_mode(ENABLED_ACTIVE_MODE_SENT);
@@ -403,6 +477,7 @@ public:
     void try_cancel(void)
     {
         if (!is_cancelling()) return;
+        DLOG("Try Cancel Alert Event");
         if (_messenger->cancel_help(_request_id))
         {
             set_enabled_mode(ENABLED_MODE_IDLE);
@@ -412,12 +487,14 @@ public:
     void issue_resolved(void)
     {
         if (!is_active()) return;
+        DLOG("Issue Resolved Event");
         set_enabled_mode(ENABLED_MODE_IDLE);
     }
 
     void wifi_connection_lost(void)
     {
         if (!is_enabled()) return;
+        DLOG("Connection Lost Event");
         store_state();
         set_mode(MODE_DISCONNECTED, false);
     }
@@ -425,11 +502,13 @@ public:
     void wifi_connection_restored(void)
     {
         if (!is_disconnected()) return;
+        DLOG("Connection Restored Event");
         restore_state();
     }
 
     void hard_reset(void)
     {
+        DLOG("Hard Reset Event");
         _mode = MODE_DISABLED;
         _enabled_mode = ENABLED_MODE_NONE;
         _enabled_active_mode = ENABLED_ACTIVE_MODE_NONE;
