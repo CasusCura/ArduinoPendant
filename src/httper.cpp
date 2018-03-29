@@ -31,7 +31,9 @@
 
 /* Konstants */
 static kstring_t kAccept = "Accept";
+static kstring_t kContentType = "Content-Type";
 static kstring_t kApplicationJson = "application/json";
+static kstring_t kApplicationUrlEncode = "application/x-www-form-urlencoded";
 static kstring_t kHttp = "http://";
 
 static kstring_t http_code_to_string(int16_t http_code)
@@ -273,6 +275,8 @@ HTTPer::status_t HTTPer::send_post(char_t * payload, uint16_t payload_length)
 
     /* Set Authorization of Device */
     client.setAuthorization(kDeviceUser, kDevicePass);
+
+    client.addHeader(kContentType, kApplicationUrlEncode);
 
     DLOG("Sending POST request...");
     http_code = client.POST((byte_t *) request_payload.buffer(), request_payload.length());
