@@ -27,7 +27,7 @@ static kstring_t kRequestTypeKey = "request_type_id";
 
 #define RESPONSE_BODY_LENGTH  1024
 
-Messenger Messenger::s_instance;
+Messenger Messenger::s_instance = Messenger();
 
 Messenger::Messenger() {}
 

@@ -12,9 +12,9 @@
 #include "fake_messenger.hpp"
 
 
-FakeMessenger FakeMessenger::s_instance;
+FakeMessenger FakeMessenger::s_instance = FakeMessenger();
 
-FakeMessenger::FakeMessenger(void):
+FakeMessenger::FakeMessenger():
     _sent(false) {}
 
 FakeMessenger * FakeMessenger::get_instance(void)
