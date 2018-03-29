@@ -91,6 +91,16 @@ C_FUNCTION bool_t wifi_driver_is_connected(void)
     return (WiFi.status() == WL_CONNECTED);
 }
 
+C_FUNCTION void wifi_driver_log_status(void)
+{
+    if (wifi_driver_is_connected())
+    {
+        DLOG2("IP Address", WiFi.localIP().toString().c_str());
+        DLOG2("Gateway", WiFi.gatewayIP().toString().c_str());
+        DLOG2("MAC Address", WiFi.macAddress().c_str());
+    }
+}
+
 C_FUNCTION void wifi_driver_init(void)
 {
 #ifdef WIFI_ENTEPRISE
