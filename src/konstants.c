@@ -36,3 +36,5 @@ kstring_t kDevicePass = "test";
 
 /* Platform Information */
 kstring_t kPlatformHost = PLATFORM_HOST;
+
+kstring_t kHelpRequestType =  HELP_REQUEST_TYPE;

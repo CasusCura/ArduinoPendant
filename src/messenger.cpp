@@ -17,7 +17,7 @@
 
 #define PLATFORM_PORT 80
 
-static kstring_t kHelpRequestPath = "/patient/request";
+static kstring_t kHelpRequestPath = "/patient/request1";
 static kstring_t kCancelRequestPath = "/patient/request/cancel";
 static kstring_t kTestPath = "/patient/test";
 
