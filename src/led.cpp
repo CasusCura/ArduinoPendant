@@ -11,11 +11,12 @@
 
 #include <Arduino.h>
 
+#include "dlog.h"
 #include "led.hpp"
 
 static inline bool_t flash_state(void)
 {
-    return ((millis() % LED_FLASH_RATE_MS) << 1) >= LED_FLASH_RATE_MS;
+    return ((millis() / LED_FLASH_RATE_MS) % 2) == 1;
 }
 
 Led::Led(Pin * pin):
@@ -44,15 +45,7 @@ void Led::on(void)
 void Led::flash(void)
 {
     if (_led_mode == FLASH_MODE) return;
-
-    if (flash_state())
-    {
-        _pin->activate();
-    }
-    else
-    {
-        _pin->deactivate();
-    }
+    _led_mode = FLASH_MODE;
 }
 
 bool_t Led::is_off(void) const
