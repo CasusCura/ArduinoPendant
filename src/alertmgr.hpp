@@ -512,7 +512,7 @@ public:
         _mode = MODE_DISABLED;
         _enabled_mode = ENABLED_MODE_NONE;
         _enabled_active_mode = ENABLED_ACTIVE_MODE_NONE;
-        _request_id = 0;
+        memset(_request_id, 0, sizeof(_request_id));
     }
 
     typedef Indicator indicator_t;
