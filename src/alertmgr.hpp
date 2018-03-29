@@ -432,8 +432,8 @@ public:
 
     void enable(void)
     {
+        if (!is_init()) return;
         if (!is_disabled()) return;
-        if (!_indicator || !_messenger) return;
         set_mode(MODE_ENABLED);
     }
 
