@@ -27,11 +27,17 @@ static bool_t dlog_initialized = false;
 
 C_FUNCTION void _dlog_init(void)
 {
+    char_t baud_buf[16];
     if (dlog_initialized) return;
 
+    memset(baud_buf, 0, sizeof(baud_buf));
+    smluintfmt(baud_buf, BAUD_RATE, sizeof(baud_buf));
+
     Serial.begin(BAUD_RATE);
+    delay(2500);
+
     DLOG("DLOG Initialized");
-    DLOG("Baud Rate: BAUD_RATE");
+    DLOG2("Baud Rate", baud_buf);
     dlog_initialized = true;
 }
 

@@ -20,6 +20,8 @@ void wifi_driver_connect(void);
 void wifi_driver_disconnect(void);
 bool_t wifi_driver_is_connected(void);
 
+void wifi_driver_log_status(void);
+
 void wifi_driver_init(void);
 void wifi_driver_loop(void);
 

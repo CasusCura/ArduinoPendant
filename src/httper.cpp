@@ -31,7 +31,9 @@
 
 /* Konstants */
 static kstring_t kAccept = "Accept";
+static kstring_t kContentType = "Content-Type";
 static kstring_t kApplicationJson = "application/json";
+static kstring_t kApplicationUrlEncode = "application/x-www-form-urlencoded";
 static kstring_t kHttp = "http://";
 
 static kstring_t http_code_to_string(int16_t http_code)
@@ -41,6 +43,8 @@ static kstring_t http_code_to_string(int16_t http_code)
         /* 200 series */
         case HTTP_CODE_OK:
             return "OK";
+        case HTTP_CODE_ACCEPTED:
+            return "Accepted";
         case HTTP_CODE_CREATED:
             return "CREATED";
         case HTTP_CODE_NO_CONTENT:
@@ -117,6 +121,11 @@ bool_t HTTPer::remove_parameter(kstring_t key)
     return true;
 }
 
+HTTPer::status_t HTTPer::send_get(void)
+{
+    return send_get(NULL, 0);
+}
+
 HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
 {
     HTTPClient client;
@@ -162,7 +171,7 @@ HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
     client.addHeader(String(kAccept), String(kApplicationJson));
 
     /* Set Authorization of Device */
-    client.setAuthorization(kWifiUser, kWifiPass);
+    client.setAuthorization(kDeviceUser, kDevicePass);
 
     DLOG("Sending GET request...");
     http_code = client.GET();
@@ -218,11 +227,17 @@ HTTPer::status_t HTTPer::send_get(char_t * payload, uint16_t payload_length)
 
 HTTPer::status_t HTTPer::send_post(void)
 {
+    return send_post(NULL, 0);
+}
+
+HTTPer::status_t HTTPer::send_post(char_t * payload, uint16_t payload_length)
+{
     HTTPClient client;
+    String response_body;
     char_t url_buffer[URL_BUFFER_LENGTH];
-    char_t payload_buffer[PAYLOAD_BUFFER_LENGTH];
+    char_t request_payload_buffer[PAYLOAD_BUFFER_LENGTH];
     BufStr url(url_buffer, URL_BUFFER_LENGTH);
-    BufStr payload(payload_buffer, PAYLOAD_BUFFER_LENGTH);
+    BufStr request_payload(request_payload_buffer, PAYLOAD_BUFFER_LENGTH);
     int16_t http_code;
     kstring_t http_code_str;
 
@@ -244,7 +259,7 @@ HTTPer::status_t HTTPer::send_post(void)
     }
 
     /* Writing payload parameters */
-    if (!write_parameters(&payload))
+    if (!write_parameters(&request_payload))
     {
         DLOG_ERR("Could not write payload parameters to URL");
         return STATUS_INTERNAL_ERROR;
@@ -259,10 +274,12 @@ HTTPer::status_t HTTPer::send_post(void)
     }
 
     /* Set Authorization of Device */
-    client.setAuthorization(kWifiUser, kWifiPass);
+    client.setAuthorization(kDeviceUser, kDevicePass);
+
+    client.addHeader(kContentType, kApplicationUrlEncode);
 
     DLOG("Sending POST request...");
-    http_code = client.POST((byte_t *) payload.buffer(), payload.length());
+    http_code = client.POST((byte_t *) request_payload.buffer(), request_payload.length());
 
     if (http_code < 0)
     {
@@ -271,13 +288,32 @@ HTTPer::status_t HTTPer::send_post(void)
     }
 
     http_code_str = http_code_to_string(http_code);
-    DLOG2("GET", http_code_str);
+    DLOG2("POST", http_code_str);
 
     switch (http_code)
     {
         case HTTP_CODE_OK:
-        case HTTP_CODE_NO_CONTENT:
         case HTTP_CODE_CREATED:
+        case HTTP_CODE_ACCEPTED:
+            /* Parse Payload */
+            if (payload)
+            {
+                response_body = client.getString();
+                DLOG2("Got data", response_body.c_str());
+                if (smlstrcpy(payload, response_body.c_str(), payload_length) >= payload_length)
+                {
+                    DLOG_ERR("Provided payload buffer is too small");
+                    return STATUS_PAYLOAD_TOO_SMALL;
+                }
+                return STATUS_OK;
+            }
+            return STATUS_OK;
+        case HTTP_CODE_NO_CONTENT:
+            if (payload)
+            {
+                DLOG("No data, clearing buffer");
+                memset(payload, 0, payload_length);
+            }
             return STATUS_OK;
         case HTTP_CODE_BAD_REQUEST:
         case HTTP_CODE_METHOD_NOT_ALLOWED:
