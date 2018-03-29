@@ -333,7 +333,7 @@ class AlertManager {
     {
         if (!is_init()) return;
 
-        if (_mode != MODE_ENABLED)
+        if (_enabled_mode != ENABLED_MODE_ACTIVE)
         {
             set_enabled_mode(ENABLED_MODE_ACTIVE);
         }
